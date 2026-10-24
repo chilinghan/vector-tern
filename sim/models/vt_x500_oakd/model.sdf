@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!--
+  PX4 x500 + OAK-D-like sensor head.
+
+  Sensor parameters approximate an OAK-D Pro (OV9282 global-shutter mono pair,
+  7.5 cm baseline, ~80 deg HFOV, 640x400) and a BMI270-class IMU with noise
+  inflated ~2x over the datasheet. Replace with values from your unit's
+  calibration EEPROM (see README TODOs).
+
+  Frame names here MUST match the static TFs in vt_bringup/launch/sim.launch.py
+  and the frames in vt_bringup/config/cuvslam.yaml.
+-->
+<sdf version="1.9">
+  <model name="vt_x500_oakd">
+    <include merge="true">
+      <uri>model://x500</uri>
+    </include>
+
+    <link name="oakd_link">
+      <pose relative_to="base_link">0.12 0 0.03 0 0 0</pose>
+      <inertial>
+        <mass>0.06</mass>
+        <inertia>
+          <ixx>4.5e-5</ixx><iyy>9.0e-6</iyy><izz>4.5e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><box><size>0.03 0.09 0.03</size></box></geometry>
+        <material><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+
+      <!-- Left mono camera (+y in FLU) -->
+      <sensor name="left_camera" type="camera">
+        <pose>0 0.0375 0 0 0 0</pose>
+        <gz_frame_id>oakd_left_optical</gz_frame_id>
+        <topic>/vt/left/image_raw</topic>
+        <update_rate>30</update_rate>
+        <always_on>1</always_on>
+        <camera>
+          <horizontal_fov>1.396</horizontal_fov>
+          <image><width>640</width><height>400</height><format>L8</format></image>
+          <clip><near>0.1</near><far>30</far></clip>
+          <noise><type>gaussian</type><mean>0</mean><stddev>0.007</stddev></noise>
+        </camera>
+      </sensor>
+
+      <!-- Right mono camera (-y in FLU) -->
+      <sensor name="right_camera" type="camera">
+        <pose>0 -0.0375 0 0 0 0</pose>
+        <gz_frame_id>oakd_right_optical</gz_frame_id>
+        <topic>/vt/right/image_raw</topic>
+        <update_rate>30</update_rate>
+        <always_on>1</always_on>
+        <camera>
+          <horizontal_fov>1.396</horizontal_fov>
+          <image><width>640</width><height>400</height><format>L8</format></image>
+          <clip><near>0.1</near><far>30</far></clip>
+          <noise><type>gaussian</type><mean>0</mean><stddev>0.007</stddev></noise>
+        </camera>
+      </sensor>
+
+      <!-- Depth, aligned with the left camera (OAK-D can align depth to either) -->
+      <sensor name="depth_camera" type="depth_camera">
+        <pose>0 0.0375 0 0 0 0</pose>
+        <gz_frame_id>oakd_left_optical</gz_frame_id>
+        <topic>/vt/depth/image_raw</topic>
+        <update_rate>15</update_rate>
+        <always_on>1</always_on>
+        <camera>
+          <horizontal_fov>1.396</horizontal_fov>
+          <image><width>640</width><height>400</height><format>R_FLOAT32</format></image>
+          <clip><near>0.2</near><far>12</far></clip>
+          <noise><type>gaussian</type><mean>0</mean><stddev>0.02</stddev></noise>
+        </camera>
+      </sensor>
+
+      <!--
+        IMU, 200 Hz. Per-sample stddev = noise_density * sqrt(rate):
+          gyro  2.5e-4 rad/s/sqrt(Hz) * sqrt(200) = 3.5e-3 rad/s
+          accel 3.2e-3 m/s^2/sqrt(Hz) * sqrt(200) = 4.5e-2 m/s^2
+        Keep consistent with vt_bringup/config/cuvslam.yaml.
+      -->
+      <sensor name="oakd_imu" type="imu">
+        <gz_frame_id>oakd_imu</gz_frame_id>
+        <topic>/vt/imu</topic>
+        <update_rate>200</update_rate>
+        <always_on>1</always_on>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0</mean><stddev>3.5e-3</stddev><bias_mean>1e-4</bias_mean><bias_stddev>5e-5</bias_stddev><dynamic_bias_stddev>2e-5</dynamic_bias_stddev><dynamic_bias_correlation_time>400</dynamic_bias_correlation_time></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>3.5e-3</stddev><bias_mean>1e-4</bias_mean><bias_stddev>5e-5</bias_stddev><dynamic_bias_stddev>2e-5</dynamic_bias_stddev><dynamic_bias_correlation_time>400</dynamic_bias_correlation_time></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>3.5e-3</stddev><bias_mean>1e-4</bias_mean><bias_stddev>5e-5</bias_stddev><dynamic_bias_stddev>2e-5</dynamic_bias_stddev><dynamic_bias_correlation_time>400</dynamic_bias_correlation_time></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0</mean><stddev>4.5e-2</stddev><bias_mean>2e-2</bias_mean><bias_stddev>5e-3</bias_stddev><dynamic_bias_stddev>3e-4</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>4.5e-2</stddev><bias_mean>2e-2</bias_mean><bias_stddev>5e-3</bias_stddev><dynamic_bias_stddev>3e-4</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>4.5e-2</stddev><bias_mean>2e-2</bias_mean><bias_stddev>5e-3</bias_stddev><dynamic_bias_stddev>3e-4</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </link>
+
+    <joint name="oakd_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>oakd_link</child>
+    </joint>
+
+    <!-- Ground truth for evaluation (pose of the model frame in the world). -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_topic>/vt/ground_truth/odom</odom_topic>
+      <odom_publish_frequency>100</odom_publish_frequency>
+      <dimensions>3</dimensions>
+    </plugin>
+  </model>
+</sdf>
