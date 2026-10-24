@@ -1,0 +1,23 @@
+# PX4 parameters applied at SITL startup (passed as PX4_PARAM_<NAME> env vars).
+# Format: NAME=VALUE. Verify names/values against the pinned PX4 version (v1.15).
+
+# EKF2: external vision only, no GPS/mag.
+EKF2_EV_CTRL=15
+EKF2_HGT_REF=3
+EKF2_GPS_CTRL=0
+EKF2_MAG_TYPE=5
+EKF2_EV_DELAY=20
+EKF2_EV_NOISE_MD=0
+EKF2_EVP_NOISE=0.05
+EKF2_EVV_NOISE=0.1
+EKF2_EVA_NOISE=0.05
+
+# Allow arming/offboard without RC or a ground station in sim.
+COM_RC_IN_MODE=4
+NAV_DLL_ACT=0
+COM_OF_LOSS_T=1.0
+
+# Conservative indoor limits.
+MPC_XY_VEL_MAX=2.0
+MPC_Z_VEL_MAX_UP=1.0
+MPC_Z_VEL_MAX_DN=0.8

@@ -1,0 +1,30 @@
+# Isaac ROS Visual SLAM (cuVSLAM), stereo + IMU.
+# Parameter names follow Isaac ROS 3.x; verify against the installed release.
+# IMU noise must match sim/models/vt_x500_oakd/model.sdf (sim) or the real IMU datasheet (hardware).
+visual_slam_node:
+  ros__parameters:
+    num_cameras: 2
+    rectified_images: true
+    enable_image_denoising: false
+    image_jitter_threshold_ms: 40.0
+
+    enable_imu_fusion: true
+    gyro_noise_density: 0.00025     # rad/s/sqrt(Hz)
+    gyro_random_walk: 0.00002       # rad/s^2/sqrt(Hz)
+    accel_noise_density: 0.0032     # m/s^2/sqrt(Hz)
+    accel_random_walk: 0.0003       # m/s^3/sqrt(Hz)
+    calibration_frequency: 200.0
+    imu_jitter_threshold_ms: 10.0
+
+    base_frame: base_link
+    imu_frame: oakd_imu
+    camera_optical_frames: [oakd_left_optical, oakd_right_optical]
+    map_frame: map
+    odom_frame: odom
+    publish_map_to_odom_tf: true
+    publish_odom_to_base_tf: true
+    enable_localization_n_mapping: true
+
+    enable_slam_visualization: true
+    enable_landmarks_view: true
+    enable_observations_view: true
