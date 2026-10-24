@@ -1,0 +1,17 @@
+# colcon
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# generated sim assets
+sim/worlds/generated/
+sim/models/vt_textures/materials/textures/*.png
+
+# evaluation output / bags
+results/
+*.db3
+*.mcap
+
+__pycache__/
+*.pyc
+.DS_Store
