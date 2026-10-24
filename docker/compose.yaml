@@ -1,0 +1,33 @@
+# Usage (from repo root):
+#   xhost +local:docker
+#   docker compose -f docker/compose.yaml build
+#   docker compose -f docker/compose.yaml run --rm dev
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        INSTALL_ISAAC_ROS: "${INSTALL_ISAAC_ROS:-0}"
+    image: vector-tern:dev
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - VT_ROOT=/workspace
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    volumes:
+      - ..:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: bash
